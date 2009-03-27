@@ -29,8 +29,6 @@ import pygtk
 import webkit
 import re
 
-DEBUG_NAME = 'RSPEC_DEBUG'
-DEBUG_TITLE = 'rspec'
 TMP_FILE = '/tmp/%s_rspec_mate.html' %  os.environ['USER']
 
 ui_str = """
@@ -169,8 +167,7 @@ class RspecWindowHelper:
         debug("script: %s" % rspec_script)
 
         # call the script
-        #os.system('spec /home/jus/caironoleto/apps/jus-cadastro/spec/models/user_spec.rb -f h > %s' % (TMP_FILE))
-        os.system('spec /home/jus/caironoleto/apps/jus-cadastro/spec/models/user_spec.rb -f h > /tmp/spec.html' % (TMP_FILE))
+        os.system('spec /home/jus/caironoleto/apps/jus-cadastro/spec/models/user_spec.rb -f h:%s'(TMP_FILE)
         #os.system('python %s "%s"' % (rspec_script, root))
 
         if self.rspec_window:
@@ -194,7 +191,7 @@ class RspecWindowHelper:
             html_str += l
         self._browser.load_string(html_str, "text/html", "utf-8", "about:")
         # remove the temporary file after load to avoid any security issue
-#        os.unlink(TMP_FILE)
+        os.unlink(TMP_FILE)
 
     def on_rspec_close(self, *args):
         self.rspec_window.hide()
