@@ -28,6 +28,7 @@ import os
 import pygtk
 import webkit
 import re
+import gnomevfs
 
 TMP_FILE = '/tmp/%s_rspec_mate.html' %  os.environ['USER']
 
@@ -67,7 +68,10 @@ def get_line(line = ''):
     if result:
         line = output % (result.group(1), file_link(result.group(3), int(result.group(5))), result.group(2), result.group(6))
     return line
-
+    
+def get_file_path(uri):
+    return uri.replace("file://", "")
+    
 def file_link(file, line=0):
     return "gedit:///%s?line=%d" % (file,line)
 
@@ -113,7 +117,7 @@ class RspecWindowHelper:
 
     def add_menu(self):
         actions = [
-            ('RSpec', gtk.STOCK_EDIT, _('RSpec Mate'), '<Super>r', _("Run current spec"), self.show_rspec_marks)
+            ('RSpec', gtk.STOCK_EDIT, _('Save current and run all specs'), '<Super>s', _("Press Super + s to save current and run all specs"), self.save_current_and_run_all_specs)
         ]
 
         action_group = gtk.ActionGroup("RSpecActions")
@@ -169,24 +173,14 @@ class RspecWindowHelper:
         if val is not None:
             return val.get_string()
 
-    def show_rspec_marks(self, *args):
-        debug("opening list of rspec marks")
-
-        # getting variables
+    def save_current_and_run_all_specs(self, *args):
         root, title = self.get_root_directory()
-
-        debug("title: %s" % title)
-        debug("root: %s" % root)
-
-        # build script path
-        rspec_script = os.path.join(os.path.dirname(__file__), "rspec_mate.py")
-
-        debug("script: %s" % rspec_script)
-
-        # call the script
-        # FIXME: Replace local path to relative
-        os.system("spec /home/cleitonfco/www/jus-cadastro/spec/models/user_spec.rb -f h:%s" % (TMP_FILE))
-        #os.system('python %s "%s"' % (rspec_script, root))
+        doc = self.window.get_active_document()
+        str_uri = doc.get_uri()
+        uri = gnomevfs.URI(str_uri)
+        print dir(get_root_path(uri.path))
+        print uri.path
+        os.system("spec %s -f h:%s" % (uri.path, TMP_FILE))
 
         if self.rspec_window:
             self.rspec_window.resize(700,510)
@@ -209,8 +203,10 @@ class RspecWindowHelper:
         for l in f.readlines():
             html_str += get_line(l)
         self._browser.load_string(html_str, "text/html", "utf-8", "about:")
+
         # remove the temporary file after load to avoid any security issue
         os.unlink(TMP_FILE)
+
 
     def on_rspec_close(self, *args):
         self.rspec_window.hide()
