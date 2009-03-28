@@ -29,6 +29,7 @@ import pygtk
 import webkit
 import re
 import gnomevfs
+import pprint
 
 TMP_FILE = '/tmp/%s_rspec_mate.html' %  os.environ['USER']
 
@@ -36,7 +37,8 @@ ui_str = """
 <ui>
     <menubar name="MenuBar">
         <menu name="ViewMenu" action="View">
-            <menuitem name="RSpec" action="RSpec"/>
+            <menuitem name="RSpecOne" action="RSpecOne"/>
+            <menuitem name="RSpecTwo" action="RSpecTwo"/>
         </menu>
     </menubar>
 </ui>
@@ -117,7 +119,8 @@ class RspecWindowHelper:
 
     def add_menu(self):
         actions = [
-            ('RSpec', gtk.STOCK_EDIT, _('Save current and run all specs'), '<Super>s', _("Press Super + s to save current and run all specs"), self.save_current_and_run_all_specs)
+            ('RSpecTwo', gtk.STOCK_EDIT, _('Save current and run all specs'), '<Super>s', _("Press Super + s to save current and run all specs"), self.save_current_and_run_all_specs),
+            ('RSpecOne', gtk.STOCK_EDIT, _('Save current and run'), '<Super>r', _("Press Super + r to save current and run"), self.save_current_and_run)
         ]
 
         action_group = gtk.ActionGroup("RSpecActions")
@@ -176,6 +179,7 @@ class RspecWindowHelper:
     def save_current_and_run_all_specs(self, *args):
         root, title = self.get_root_directory()
         doc = self.window.get_active_document()
+        doc.save("GEDIT_DOCUMENT_SAVE_IGNORE_BACKUP")
         str_uri = doc.get_uri()
         uri = gnomevfs.URI(str_uri)
         print dir(get_root_path(uri.path))
@@ -207,6 +211,38 @@ class RspecWindowHelper:
         # remove the temporary file after load to avoid any security issue
         os.unlink(TMP_FILE)
 
+    def save_current_and_run(self, *args):
+        root, title = self.get_root_directory()
+        doc = self.window.get_active_document()
+        doc.save("GEDIT_DOCUMENT_SAVE_IGNORE_BACKUP")
+        str_uri = doc.get_uri()
+        uri = gnomevfs.URI(str_uri)
+        os.system("spec %s -f h:%s" % (uri.path, TMP_FILE))
+
+        if self.rspec_window:
+            self.rspec_window.resize(700,510)
+            self.rspec_window.show()
+            self.rspec_window.grab_focus()
+        else:
+            self._browser = BrowserPage()
+            self._browser.connect('navigation-requested', self.on_navigation_request)
+            self.rspec_window = gtk.Window()
+            self.rspec_window.set_type_hint(gtk.gdk.WINDOW_TYPE_HINT_DIALOG)
+            self.rspec_window.resize(700,510)
+            self.rspec_window.connect('delete_event', self.on_rspec_close)
+            self.rspec_window.set_destroy_with_parent(True)
+            self.rspec_window.add(self._browser)
+            self.rspec_window.show_all()
+
+        self.rspec_window.set_title(title)
+        f = open(TMP_FILE)
+        html_str = ''
+        for l in f.readlines():
+            html_str += get_line(l)
+        self._browser.load_string(html_str, "text/html", "utf-8", "about:")
+
+        # remove the temporary file after load to avoid any security issue
+        os.unlink(TMP_FILE)
 
     def on_rspec_close(self, *args):
         self.rspec_window.hide()
