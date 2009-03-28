@@ -184,6 +184,7 @@ class RspecWindowHelper:
         debug("script: %s" % rspec_script)
 
         # call the script
+        # FIXME: Replace local path to relative
         os.system("spec /home/cleitonfco/www/jus-cadastro/spec/models/user_spec.rb -f h:%s" % (TMP_FILE))
         #os.system('python %s "%s"' % (rspec_script, root))
 
