@@ -1,0 +1,9 @@
+[Gedit Plugin]
+Loader=python
+Module=rspec_mate
+IAge=2
+Name=RSpec Mate
+Description=RSpec Mate
+Authors=Cairo Noleto
+Copyright=Copyright © 2009 Cairo Noleto
+Website=http://github.com/caironoleto/rspec_mate

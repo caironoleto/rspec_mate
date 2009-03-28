@@ -189,6 +189,7 @@ class RspecWindowHelper:
         #os.system('python %s "%s"' % (rspec_script, root))
 
         if self.rspec_window:
+            self.rspec_window.resize(700,510)
             self.rspec_window.show()
             self.rspec_window.grab_focus()
         else:
