@@ -41,6 +41,9 @@ ui_str = """
 </ui>
 """
 
+DEBUG_NAME = 'RM_DEBUG'
+DEBUG_TITLE = 'RSpec_Mate'
+
 class BrowserPage(webkit.WebView):
     def __init__(self):
         webkit.WebView.__init__(self)
@@ -54,6 +57,20 @@ def debug(text, level=1):
                 print "[%s] %s" % (DEBUG_TITLE, text)
         except:
             print "[%s] debug error" % DEBUG_TITLE
+# Link Pattern (in line)
+lp = re.compile('([^/]*)(((\/[a-zA-Z0-9-_\.]+)+):(\d+):)(.*)$')
+
+# Helper Functions
+def get_line(line = ''):
+    output = '%s<a href="%s">%s</a>%s\n'
+    result = lp.match(line)
+    if result:
+        line = output % (result.group(1), file_link(result.group(3), int(result.group(5))), result.group(2), result.group(6))
+    return line
+
+def file_link(file, line=0):
+    return "gedit:///%s?line=%d" % (file,line)
+
 # TODO: Create a Configuragion dialog
 class RspecPlugin(gedit.Plugin):
     def __init__(self):
@@ -167,7 +184,7 @@ class RspecWindowHelper:
         debug("script: %s" % rspec_script)
 
         # call the script
-        os.system('spec /home/jus/caironoleto/apps/jus-cadastro/spec/models/user_spec.rb -f h:%s'(TMP_FILE)
+        os.system("spec /home/cleitonfco/www/jus-cadastro/spec/models/user_spec.rb -f h:%s" % (TMP_FILE))
         #os.system('python %s "%s"' % (rspec_script, root))
 
         if self.rspec_window:
@@ -188,7 +205,7 @@ class RspecWindowHelper:
         f = open(TMP_FILE)
         html_str = ''
         for l in f.readlines():
-            html_str += l
+            html_str += get_line(l)
         self._browser.load_string(html_str, "text/html", "utf-8", "about:")
         # remove the temporary file after load to avoid any security issue
         os.unlink(TMP_FILE)
