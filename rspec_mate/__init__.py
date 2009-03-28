@@ -29,7 +29,6 @@ import pygtk
 import webkit
 import re
 import gnomevfs
-import pprint
 
 TMP_FILE = '/tmp/%s_rspec_mate.html' %  os.environ['USER']
 
@@ -63,6 +62,9 @@ def debug(text, level=1):
 # Link Pattern (in line)
 lp = re.compile('([^/]*)(((\/[a-zA-Z0-9-_\.]+)+):(\d+):)(.*)$')
 
+#Root path pattern
+rp = re.compile('(.*)\/spec\/.*')
+
 # Helper Functions
 def get_line(line = ''):
     output = '%s<a href="%s">%s</a>%s\n'
@@ -73,6 +75,12 @@ def get_line(line = ''):
     
 def get_file_path(uri):
     return uri.replace("file://", "")
+    
+def get_root_path(uri):
+    result = rp.match(uri)
+    if result:
+      uri = result.group(1)
+    return uri
     
 def file_link(file, line=0):
     return "gedit:///%s?line=%d" % (file,line)
@@ -119,8 +127,8 @@ class RspecWindowHelper:
 
     def add_menu(self):
         actions = [
-            ('RSpecTwo', gtk.STOCK_EDIT, _('Save current and run all specs'), '<Super>s', _("Press Super + s to save current and run all specs"), self.save_current_and_run_all_specs),
-            ('RSpecOne', gtk.STOCK_EDIT, _('Save current and run'), '<Super>r', _("Press Super + r to save current and run"), self.save_current_and_run)
+            ('RSpecTwo', gtk.STOCK_EDIT, _('Run all specs'), '<Super>r', _("Press Super + r to run all specs"), self.run_all_specs),
+            ('RSpecOne', gtk.STOCK_EDIT, _('Run current spec'), '<Super>s', _("Press Super + s to run current spec"), self.run_current_spec)
         ]
 
         action_group = gtk.ActionGroup("RSpecActions")
@@ -176,15 +184,13 @@ class RspecWindowHelper:
         if val is not None:
             return val.get_string()
 
-    def save_current_and_run_all_specs(self, *args):
+    def run_all_specs(self, *args):
         root, title = self.get_root_directory()
         doc = self.window.get_active_document()
-        doc.save("GEDIT_DOCUMENT_SAVE_IGNORE_BACKUP")
         str_uri = doc.get_uri()
         uri = gnomevfs.URI(str_uri)
-        print dir(get_root_path(uri.path))
-        print uri.path
-        os.system("spec %s -f h:%s" % (uri.path, TMP_FILE))
+        spec_path = get_root_path(uri.path) + "/spec/"
+        os.system("spec %s -f h:%s" % (spec_path, TMP_FILE))
 
         if self.rspec_window:
             self.rspec_window.resize(700,510)
@@ -211,10 +217,9 @@ class RspecWindowHelper:
         # remove the temporary file after load to avoid any security issue
         os.unlink(TMP_FILE)
 
-    def save_current_and_run(self, *args):
+    def run_current_spec(self, *args):
         root, title = self.get_root_directory()
         doc = self.window.get_active_document()
-        doc.save("GEDIT_DOCUMENT_SAVE_IGNORE_BACKUP")
         str_uri = doc.get_uri()
         uri = gnomevfs.URI(str_uri)
         os.system("spec %s -f h:%s" % (uri.path, TMP_FILE))
