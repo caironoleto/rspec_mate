@@ -30,7 +30,7 @@ Twitter: [@caironoleto][twitter_url]
 
 Working at [Jus Navigandi][jus]
 
-Site: [http://www.cleitonfco.com.br][http://www.cleitonfco.com.br]
+Site: [http://www.cleitonfco.com.br][cleitonfco_site]
 
 Twitter: [@cleitonfco][cleiton_twitter_url]
 
@@ -39,4 +39,5 @@ Twitter: [@cleitonfco][cleiton_twitter_url]
 [blog_url]: http://www.caironoleto.com/
 [twitter_url]: http://www.twitter.com/caironoleto
 [cleiton_twitter_url]: http://www.twitter.com/cleitonfco
+[cleitonfco_site]: http://www.cleitonfco.com.br
 [jus]: http://jus.uol.com.br/
