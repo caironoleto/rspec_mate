@@ -6,7 +6,7 @@ RSpec mate depends of python-webkitgtk package, if you don't use debian/ubuntu b
 
 To install on a debian/ubuntu based distro just run in a terminal:
 
-  $ sudo apt-get install python-webkitgtk
+    $ sudo apt-get install python-webkitgtk
   
 [Download RSpec Mate][down] and extract in ~/.gnome2/gedit/plugins.
 
