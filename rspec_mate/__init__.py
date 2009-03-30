@@ -153,13 +153,15 @@ class RspecWindowHelper:
             self.rspec_window.grab_focus()
         else:
             self._browser = BrowserPage()
+            self._gtk_4_browser = gtk.ScrolledWindow()
             self._browser.connect('navigation-requested', self.on_navigation_request)
-            self.rspec_window = gtk.ScrolledWindow()
+            self.rspec_window = gtk.Window()
             self.rspec_window.set_type_hint(gtk.gdk.WINDOW_TYPE_HINT_DIALOG)
             self.rspec_window.resize(700,510)
             self.rspec_window.connect('delete_event', self.on_rspec_close)
             self.rspec_window.set_destroy_with_parent(True)
-            self.rspec_window.add(self._browser)
+            self._gtk_4_browser.add(self._browser)
+            self.rspec_window.add(self._gtk_4_browser)
             self.rspec_window.show_all()
 
         f = open(TMP_FILE)
