@@ -18,6 +18,7 @@ Press Super + R to run all specs in your project.
 
 ## TODO
   - save current spec before run (like CTRL + S) or run after save (using CTRL + S)
+  - show errors in ruby when run spec (like syntax error)
 
 ## Authors
 
