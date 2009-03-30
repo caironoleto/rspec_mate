@@ -16,6 +16,9 @@ Press Super + S to run current spec.
 
 Press Super + R to run all specs in your project.
 
+## TODO
+  - save current spec before run (like CTRL + S) or run after save (using CTRL + S)
+
 ## Authors
 
 ### **Cairo Noleto**
