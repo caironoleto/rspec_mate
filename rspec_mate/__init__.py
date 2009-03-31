@@ -91,6 +91,9 @@ def get_spec(uri):
           f = " %s/spec/routing/%s_routing_spec.rb" % (result.group(1), result.group(2))
           if os.path.isfile(f):
             path = path + f
+          else:
+            f = " %s/spec/controllers/%s_routing_spec.rb" % (result.group(1), result.group(2))
+            path = path + f
     print path
     return path
 
