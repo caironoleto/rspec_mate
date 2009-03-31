@@ -26,6 +26,7 @@ import pygtk
 import webkit
 import re
 import gnomevfs
+import subprocess
 
 TMP_FILE = '/tmp/%s_rspec_mate.html' %  os.environ['USER']
 
@@ -178,7 +179,10 @@ class RspecWindowHelper:
         doc = self.window.get_active_document()
         str_uri = doc.get_uri()
         uri = gnomevfs.URI(str_uri)
-        os.system("spec %s -f h:%s" % (uri.path, TMP_FILE))
+        command = "spec %s -f h:%s" % (uri.path, TMP_FILE)
+        #command = 'uptime'
+        print command
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, shell = True)
 
         if self.rspec_window:
             self.rspec_window.resize(700,510)
@@ -197,19 +201,24 @@ class RspecWindowHelper:
             self.rspec_window.add(self._gtk_4_browser)
             self.rspec_window.show_all()
 
-        f = open(TMP_FILE)
-        html_str = ''
-        title = "Current Spec"
-        for l in f.readlines():
-            html_str += get_line(l)
-            _title = get_title(l)
-            if _title is not None:
-              title = _title
+        if os.path.isfile(TMP_FILE):
+          f = open(TMP_FILE)
+          html_str = ''
+          title = "Current Spec"
+          for l in f.readlines():
+              html_str += get_line(l)
+              _title = get_title(l)
+              if _title is not None:
+                title = "Spec to %s" % (_title)
+          os.unlink(TMP_FILE)
+        else:
+          title = "Error - See log"
+          log = process.stdout.read().strip()
+          print "\n\n\n\n\n\n LOOOOOOG:\n" + log
+          html_str = log
 
-        self.rspec_window.set_title("Spec to %s" % (title))
+        self.rspec_window.set_title(title)
         self._browser.load_string(html_str, "text/html", "utf-8", "about:")
-
-        os.unlink(TMP_FILE)
 
     def on_rspec_close(self, *args):
         self.rspec_window.hide()
