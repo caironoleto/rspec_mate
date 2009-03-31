@@ -22,13 +22,16 @@ import gconf
 import gtk
 import gtk.gdk
 import os
+import stat
 import pygtk
 import webkit
 import re
 import gnomevfs
 import subprocess
+from string import Template
 
 TMP_FILE = '/tmp/%s_rspec_mate.html' %  os.environ['USER']
+OUT_FILE = '/tmp/%s_error.out' %  os.environ['USER']
 
 ui_str = """
 <ui>
@@ -101,6 +104,99 @@ def get_title(title):
 def file_link(file, line=0):
     return "gedit:///%s?line=%d" % (file,line)
 
+def error_extract():
+    f = open(OUT_FILE)
+    mp           = re.compile("((((\/[a-zA-Z0-9-_\.]+)+):(\d+):)*)([^/]*)(((\/[a-zA-Z0-9-_\.]+)+):(\d+):)(.*)$")
+    file_url     = ''
+    console      = ''
+    message_line = f.readline()
+    result       = mp.match(message_line)
+    message      = message_line
+    if result:
+        message = result.group(11)
+        file_url = '<a href="%s">%s</a>' % (file_link(result.group(8), int(result.group(10))), result.group(7))
+
+    for l in f.readlines():
+        console += l
+    html_pattern = \
+"""
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html 
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>RSpec results</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Expires" content="-1" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <style type="text/css">
+body {
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  font-size: 80%;
+}
+#rspec-header {
+  background: #797979; color: #fff; height: 4em;
+}
+.rspec-report h1 {
+  margin: 0px 10px 0px 10px;
+  padding: 10px;
+  font-family: "Lucida Grande", Helvetica, sans-serif;
+  font-size: 1.8em;
+  position: absolute;
+}
+.results {
+  padding:10px;
+}
+.failure {
+  padding:3px 3px 3px 18px;
+  background-color:#f0f0f0;
+  color:#C20000;
+  font:11px/normal "Lucida Grande",Helvetica,sans-serif;
+}
+.backtrace {
+  color: #000;
+  font-size: 12px;
+}
+a {
+  color: #BE5C00;
+}
+.console {
+  font-size: 12px;
+  font-family: monospace;
+  color: white;
+  background-color: black;
+  padding: 0.1em 0 0.2em 0;
+  overflow:auto;
+}
+  </style>
+</head>
+<body>
+<div class="rspec-report">
+
+<div id="rspec-header">
+  <div id="label">
+    <h1>RSpec Error</h1>
+  </div>
+</div>
+
+<div class="results">
+  <div class="failure">
+    <p class="message"><pre>${rspec_message}</pre></p>
+    <p class="backtrace">${rspec_file_url}</p>
+    <pre class="console"><code>${rspec_console}</code></pre>
+  </div>
+</div>
+</div>
+</body>
+</html>
+"""
+    markup = Template(html_pattern)
+    markup_out = markup.substitute(rspec_message=message, rspec_file_url=file_url, rspec_console=console)
+    return markup_out
+
 class RspecPlugin(gedit.Plugin):
     def __init__(self):
         gedit.Plugin.__init__(self)
@@ -166,7 +262,7 @@ class RspecWindowHelper:
     def run_all_specs(self, *args):
         uri = get_file_path(self.get_filebrowser_root())
         spec_path = get_root_path(uri)
-        os.system("spec %s -f h:%s" % (spec_path, TMP_FILE))
+        os.system("spec %s -f h:%s 2>&1 | tee %s" % (spec_path, TMP_FILE, OUT_FILE))
 
         if self.rspec_window:
             self.rspec_window.resize(700,510)
@@ -185,22 +281,26 @@ class RspecWindowHelper:
             self.rspec_window.add(self._gtk_4_browser)
             self.rspec_window.show_all()
 
-        f = open(TMP_FILE)
         html_str = ''
-        for l in f.readlines():
-            html_str += get_line(l)
-        
-        self.rspec_window.set_title("All Specs")
-        self._browser.load_string(html_str, "text/html", "utf-8", "about:")
+        if os.path.isfile(TMP_FILE):
+            f = open(TMP_FILE)
+            for l in f.readlines():
+                html_str += get_line(l)
+            os.unlink(TMP_FILE)
+            title = "All Specs"
+        else:
+            html_str = error_extract()
+            title = "RSpec Error"
 
-        os.unlink(TMP_FILE)
+        self.rspec_window.set_title(title)
+        self._browser.load_string(html_str, "text/html", "utf-8", "about:")
 
     def run_current_spec(self, *args):
         doc = self.window.get_active_document()
         str_uri = doc.get_uri()
         uri = gnomevfs.URI(str_uri)
         spec_path = get_spec(uri.path)
-        os.system("spec %s -f h:%s" % (spec_path, TMP_FILE))
+        os.system("spec %s -f h:%s 2>&1 | tee %s" % (spec_path, TMP_FILE, OUT_FILE))
 
         if self.rspec_window:
             self.rspec_window.resize(700,510)
@@ -220,14 +320,18 @@ class RspecWindowHelper:
             self.rspec_window.show_all()
 
         html_str = ''
-        f = open(TMP_FILE)
-        title = "Current Spec"
-        for l in f.readlines():
-            html_str += get_line(l)
-            _title = get_title(l)
-            if _title is not None:
-              title = "Spec to %s" % (_title)
-        os.unlink(TMP_FILE)
+        if os.path.isfile(TMP_FILE):
+            f = open(TMP_FILE)
+            title = "Current Spec"
+            for l in f.readlines():
+                html_str += get_line(l)
+                _title = get_title(l)
+                if _title is not None:
+                    title = "Spec to %s" % (_title)
+            os.unlink(TMP_FILE)
+        else:
+            html_str = error_extract()
+            title = "RSpec Error"
 
         self.rspec_window.set_title(title)
         self._browser.load_string(html_str, "text/html", "utf-8", "about:")
