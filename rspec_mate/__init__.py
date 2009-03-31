@@ -52,7 +52,7 @@ lp = re.compile('([^/]*)(((\/[a-zA-Z0-9-_\.]+)+):(\d+):)(.*)$')
 tp = re.compile('.*1">([a-zA-Z0-9-_\. ]*)</dt>.*')
 
 #Root path pattern
-rp = re.compile('(.*)\/spec\/.*')
+rp = re.compile('(.*\/spec\/).*')
 
 # Helper Functions
 def get_line(line = ''):
@@ -145,7 +145,7 @@ class RspecWindowHelper:
 
     def run_all_specs(self, *args):
         uri = get_file_path(self.get_filebrowser_root())
-        spec_path = get_root_path(uri) + "/spec/"
+        spec_path = get_root_path(uri)
         os.system("spec %s -f h:%s" % (spec_path, TMP_FILE))
 
         if self.rspec_window:
@@ -179,10 +179,7 @@ class RspecWindowHelper:
         doc = self.window.get_active_document()
         str_uri = doc.get_uri()
         uri = gnomevfs.URI(str_uri)
-        command = "spec %s -f h:%s" % (uri.path, TMP_FILE)
-        #command = 'uptime'
-        print command
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, shell = True)
+        os.system("spec %s -f h:%s" % (uri.path, TMP_FILE))
 
         if self.rspec_window:
             self.rspec_window.resize(700,510)
@@ -201,21 +198,15 @@ class RspecWindowHelper:
             self.rspec_window.add(self._gtk_4_browser)
             self.rspec_window.show_all()
 
-        if os.path.isfile(TMP_FILE):
-          f = open(TMP_FILE)
-          html_str = ''
-          title = "Current Spec"
-          for l in f.readlines():
-              html_str += get_line(l)
-              _title = get_title(l)
-              if _title is not None:
-                title = "Spec to %s" % (_title)
-          os.unlink(TMP_FILE)
-        else:
-          title = "Error - See log"
-          log = process.stdout.read().strip()
-          print "\n\n\n\n\n\n LOOOOOOG:\n" + log
-          html_str = log
+        html_str = ''
+        f = open(TMP_FILE)
+        title = "Current Spec"
+        for l in f.readlines():
+            html_str += get_line(l)
+            _title = get_title(l)
+            if _title is not None:
+              title = "Spec to %s" % (_title)
+        os.unlink(TMP_FILE)
 
         self.rspec_window.set_title(title)
         self._browser.load_string(html_str, "text/html", "utf-8", "about:")
