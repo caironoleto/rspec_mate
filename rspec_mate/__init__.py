@@ -54,6 +54,11 @@ tp = re.compile('.*1">([a-zA-Z0-9-_\. ]*)</dt>.*')
 #Root path pattern
 rp = re.compile('(.*\/spec\/).*')
 
+#Model|Controller|View => work with rails
+wrp = re.compile('(.*)\/app\/(controllers|helpers|models|views)\/(.*)(rb|erb)')
+crp = re.compile('(.*)\/app\/controllers\/(.*)\_controller.rb')
+vrp = re.compile('(.*)\/app\/views\/((.*)\/(.*)[rb|erb]?)')
+
 # Helper Functions
 def get_line(line = ''):
     output = '%s<a href="%s">%s</a>%s\n'
@@ -70,6 +75,23 @@ def get_root_path(uri):
     if result:
       uri = result.group(1)
     return uri
+
+def get_spec(uri):
+    result = wrp.match(uri)
+    print uri
+    if result:
+      path = "%s/spec/%s/%s_spec.rb" % (result.group(1), result.group(2), result.group(3))
+      if result.group(2) == 'views':
+        result = vrp.match(uri)
+        if result:
+          path = "%s/spec/views/%s/%s_spec.rb" % (result.group(1), result.group(3), result.group(4))
+      if result.group(2) == 'controllers':
+        result = crp.match(uri)
+        if result:
+          f = " %s/spec/routing/%s_routing_spec.rb" % (result.group(1), result.group(2))
+          if os.path.isfile(f):
+            path = path + f
+    return path
 
 def get_title(title):
     result = tp.match(title)
@@ -179,7 +201,8 @@ class RspecWindowHelper:
         doc = self.window.get_active_document()
         str_uri = doc.get_uri()
         uri = gnomevfs.URI(str_uri)
-        os.system("spec %s -f h:%s" % (uri.path, TMP_FILE))
+        spec_path = get_spec(uri.path)
+        os.system("spec %s -f h:%s" % (spec_path, TMP_FILE))
 
         if self.rspec_window:
             self.rspec_window.resize(700,510)

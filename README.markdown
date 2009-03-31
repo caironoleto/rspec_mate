@@ -2,13 +2,17 @@
 
 RSpec Mate is a plugin for Gedit. This provide a window with results of spec like textmate. You can see screenshots in [Cairo'sBlog][rspec_mate_url].
 
-RSpec Mate depends of python-webkitgtk package, if you don't use debian/ubuntu based distro, you will need install from source. The Python Webkit Home is located on http://code.google.com/p/pywebkitgtk/
+RSpec Mate depends of python-webkitgtk package, if you don't use debian/ubuntu based distro, you will need install from source. The Python Webkit Home is located on http://code.google.com/p/pywebkitgtk/.
 
 To install on a debian/ubuntu based distro just run in a terminal:
 
     $ sudo apt-get install python-webkitgtk
   
 [Download RSpec Mate][down] and extract in ~/.gnome2/gedit/plugins.
+
+You can install the gem syntax to see the codes more sexy ;)
+
+    $ sudo gem install syntax
 
 ## Usage
 
