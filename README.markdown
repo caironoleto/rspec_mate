@@ -16,13 +16,12 @@ You can install the gem syntax to see the codes more sexy ;)
 
 ## Usage
 
-Press Super + S to run current spec.
+Press Super + S to run current spec. (You can press Super + S in your model, controller, helper or view to run respective spec)
 
 Press Super + R to run all specs in your project.
 
 ## TODO
   - save current spec before run (like CTRL + S) or run after save (using CTRL + S)
-  - show errors in ruby when run spec (like syntax error)
 
 ## Authors
 
