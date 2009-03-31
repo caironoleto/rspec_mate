@@ -55,9 +55,8 @@ tp = re.compile('.*1">([a-zA-Z0-9-_\. ]*)</dt>.*')
 rp = re.compile('(.*\/spec\/).*')
 
 #Model|Controller|View => work with rails
-wrp = re.compile('(.*)\/app\/(controllers|helpers|models|views)\/(.*)(rb|erb)')
+wrp = re.compile('(.*)\/app\/(controllers|helpers|models|views)\/(.*)(\.rb|\.erb)')
 crp = re.compile('(.*)\/app\/controllers\/(.*)\_controller.rb')
-vrp = re.compile('(.*)\/app\/views\/((.*)\/(.*)[rb|erb]?)')
 
 # Helper Functions
 def get_line(line = ''):
@@ -82,15 +81,14 @@ def get_spec(uri):
     if result:
       path = "%s/spec/%s/%s_spec.rb" % (result.group(1), result.group(2), result.group(3))
       if result.group(2) == 'views':
-        result = vrp.match(uri)
-        if result:
-          path = "%s/spec/views/%s/%s_spec.rb" % (result.group(1), result.group(3), result.group(4))
+        path = "%s/spec/%s/%s.erb_spec.rb" % (result.group(1), result.group(2), result.group(3))
       if result.group(2) == 'controllers':
         result = crp.match(uri)
         if result:
           f = " %s/spec/routing/%s_routing_spec.rb" % (result.group(1), result.group(2))
           if os.path.isfile(f):
             path = path + f
+    print path
     return path
 
 def get_title(title):
