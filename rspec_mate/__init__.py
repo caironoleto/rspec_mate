@@ -80,7 +80,6 @@ def get_root_path(uri):
 
 def get_spec(uri):
     result = wrp.match(uri)
-    print uri
     if result:
       path = "%s/spec/%s/%s_spec.rb" % (result.group(1), result.group(2), result.group(3))
       if result.group(2) == 'views':
@@ -88,13 +87,12 @@ def get_spec(uri):
       if result.group(2) == 'controllers':
         result = crp.match(uri)
         if result:
-          f = " %s/spec/routing/%s_routing_spec.rb" % (result.group(1), result.group(2))
+          f = "%s/spec/routing/%s_routing_spec.rb" % (result.group(1), result.group(2))
           if os.path.isfile(f):
-            path = path + f
+            path = path + " " + f
           else:
-            f = " %s/spec/controllers/%s_routing_spec.rb" % (result.group(1), result.group(2))
-            path = path + f
-    print path
+            f = "%s/spec/controllers/%s_routing_spec.rb" % (result.group(1), result.group(2))
+            path = path + " " + f
     return path
 
 def get_title(title):
