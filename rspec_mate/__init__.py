@@ -44,24 +44,21 @@ ui_str = """
 </ui>
 """
 
-class BrowserPage(webkit.WebView):
-    def __init__(self):
-        webkit.WebView.__init__(self)
+# Helper Functions
 
 # Link Pattern (in line)
 lp = re.compile('([^/]*)(((\/[a-zA-Z0-9-_\.]+)+):(\d+):)(.*)$')
 
-#Title Pattern
+# Title Pattern
 tp = re.compile('.*1">([a-zA-Z0-9-_\. ]*)</dt>.*')
 
-#Root path pattern
+# Root path pattern
 rp = re.compile('(.*\/spec\/).*')
 
-#Model|Controller|View => work with rails
+# Model|Controller|View => work with rails
 wrp = re.compile('(.*)\/app\/(controllers|helpers|models|views)\/(.*)(\.rb|\.erb)')
 crp = re.compile('(.*)\/app\/controllers\/(.*)\_controller.rb')
 
-# Helper Functions
 def get_line(line = ''):
     output = '%s<a href="%s">%s</a>%s\n'
     result = lp.match(line)
@@ -199,6 +196,12 @@ a {
     markup = Template(html_pattern)
     markup_out = markup.substitute(rspec_message=message, rspec_file_url=file_url, rspec_console=console)
     return markup_out
+
+# Class
+
+class BrowserPage(webkit.WebView):
+    def __init__(self):
+        webkit.WebView.__init__(self)
 
 class RspecPlugin(gedit.Plugin):
     def __init__(self):
