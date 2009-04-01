@@ -93,6 +93,8 @@ def get_spec(uri):
           else:
             f = "%s/spec/controllers/%s_routing_spec.rb" % (result.group(1), result.group(2))
             path = path + " " + f
+    else:
+      path = uri
     return path
 
 def get_title(title):
