@@ -299,7 +299,7 @@ class RspecWindowHelper:
             title = "RSpec Error"
 
         self.rspec_window.set_title(title)
-        self._browser.load_string(html_str, "text/html", "utf-8", "about:")
+        self._browser.load_string(html_str, "text/html", "utf-8", "")
 
     def run_current_spec(self, *args):
         doc = self.window.get_active_document()
@@ -340,7 +340,7 @@ class RspecWindowHelper:
             title = "RSpec Error"
 
         self.rspec_window.set_title(title)
-        self._browser.load_string(html_str, "text/html", "utf-8", "about:")
+        self._browser.load_string(html_str, "text/html", "utf-8", "")
 
     def on_rspec_close(self, *args):
         self.rspec_window.hide()
