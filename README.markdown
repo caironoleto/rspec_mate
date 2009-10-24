@@ -2,14 +2,14 @@
 
 RSpec Mate is a plugin for Gedit. This provide a window with results of spec like textmate. You can see screenshots in [Cairo'sBlog][rspec_mate_url].
 
-RSpec Mate depends of python-webkitgtk package, if you don't use debian/ubuntu based distro, you will need install from source. The Python Webkit Home is located on http://code.google.com/p/pywebkitgtk/.
+RSpec Mate depends of python-webkit package, if you don't use debian/ubuntu based distro, you will need install from source. The Python Webkit Home is located on http://code.google.com/p/pywebkitgtk/.
 
 To install on a debian/ubuntu based distro just run in a terminal:
 
-    $ sudo apt-get install python-webkitgtk
+    $ git clone git://github.com/sobrinho/rspec_mate.git
+    $ cd rspec_mate
+    $ ./install.sh
   
-[Download RSpec Mate][down] and extract in ~/.gnome2/gedit/plugins.
-
 You can install the gem syntax to see the codes more sexy ;)
 
     $ sudo gem install syntax
@@ -41,6 +41,14 @@ Site: [http://www.cleitonfco.com.br][cleitonfco_site]
 
 Twitter: [@cleitonfco][cleiton_twitter_url]
 
+### **Gabriel Sobrinho**
+
+Development Director of Hite
+
+Site: [http://www.hite.com.br][hite_url]
+
+Twitter: [@sobrinho][sobrinho_twitter_url]
+
 [rspec_mate_url]: http://www.caironoleto.com/2009/03/28/rspec-mate-plugin-para-o-geditrspec-mate-plugin-para-o-gedit/
 [down]: http://github.com/caironoleto/rspec_mate/tarball/master
 [blog_url]: http://www.caironoleto.com/
@@ -48,3 +56,5 @@ Twitter: [@cleitonfco][cleiton_twitter_url]
 [cleiton_twitter_url]: http://www.twitter.com/cleitonfco
 [cleitonfco_site]: http://www.cleitonfco.com.br
 [jus]: http://jus.uol.com.br/
+[hite_url]: http://www.hite.com.br/
+[sobrinho_twitter_url]: http://www.twitter.com/sobrinho
