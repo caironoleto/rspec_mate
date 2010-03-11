@@ -6,7 +6,7 @@ RSpec Mate depends of python-webkit package, if you don't use debian/ubuntu base
 
 To install on a debian/ubuntu based distro just run in a terminal:
 
-    $ git clone git://github.com/sobrinho/rspec_mate.git
+    $ git clone git://github.com/caironoleto/rspec_mate.git
     $ cd rspec_mate
     $ ./install.sh
   
