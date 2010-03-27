@@ -55,6 +55,9 @@ tp = re.compile('.*1">([a-zA-Z0-9-_\. ]*)</dt>.*')
 # Root path pattern
 rp = re.compile('(.*\/spec\/).*')
 
+# Spec path pattern
+sp = re.compile('(.*\/spec\/)')
+
 # Model|Controller|View => work with rails
 wrp = re.compile('(.*)\/app\/(controllers|helpers|models|views)\/(.*)(\.rb|\.erb)')
 crp = re.compile('(.*)\/app\/controllers\/(.*)\_controller.rb')
@@ -74,6 +77,12 @@ def get_root_path(uri):
     if result:
       uri = result.group(1)
     return uri
+
+def get_spec_dir(uri):
+    result = sp.match(uri)
+    if result:
+      uri = result.group(1)
+    return uri    
 
 def get_spec(uri):
     result = wrp.match(uri)
@@ -268,7 +277,8 @@ class RspecWindowHelper:
     def run_all_specs(self, *args):
         uri = get_file_path(self.get_filebrowser_root())
         spec_path = get_root_path(uri)
-        os.system("spec %s -f h:%s 2>&1 | tee %s" % (spec_path, TMP_FILE, OUT_FILE))
+        spec_dir = get_spec_dir(uri)
+        os.system("cd %s && spec %s -f h:%s 2>&1 | tee %s" % (spec_dir, spec_path, TMP_FILE, OUT_FILE))
 
         if self.rspec_window:
             self.rspec_window.resize(700,510)
@@ -305,8 +315,9 @@ class RspecWindowHelper:
         doc = self.window.get_active_document()
         str_uri = doc.get_uri()
         uri = gnomevfs.URI(str_uri)
+        spec_dir = get_spec_dir(uri.path)
         spec_path = get_spec(uri.path)
-        os.system("spec %s -f h:%s 2>&1 | tee %s" % (spec_path, TMP_FILE, OUT_FILE))
+        os.system("cd %s && spec %s -f h:%s 2>&1 | tee %s" % (spec_dir, spec_path, TMP_FILE, OUT_FILE))
 
         if self.rspec_window:
             self.rspec_window.resize(700,510)
